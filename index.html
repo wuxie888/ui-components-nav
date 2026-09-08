@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="zh"><head><meta charset="utf-8"><title>UI 组件导航 · 3700+ React / Tailwind 动效组件</title>
+<meta name="description" content="一个页面搜遍 Magic UI、Aceternity、cult-ui、Kokonut、motion-primitives 和 21st.dev 社区的 3700+ React 组件，846 个可一键复制 AI 提示词。">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#0f1115;--card:#171a21;--line:#262a33;--fg:#e6e8ee;--muted:#8b93a5;--acc:#6ea8fe;--ok:#3ecf8e;--warn:#f0b35a;--bad:#f27474}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 -apple-system,"PingFang SC",system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:rgba(15,17,21,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;flex-direction:column;gap:10px}
+.top{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+h1{font-size:16px;margin:0;font-weight:600}
+input{flex:1;min-width:240px;background:var(--card);border:1px solid var(--line);color:var(--fg);padding:9px 12px;border-radius:8px;font-size:14px;outline:none}
+input:focus{border-color:var(--acc)}
+.f{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.f button,.f label{background:var(--card);border:1px solid var(--line);color:var(--muted);padding:5px 10px;border-radius:999px;cursor:pointer;font-size:12px;user-select:none}
+.f button.on{border-color:var(--acc);color:var(--fg)}.f .lbl{color:var(--muted);font-size:12px;margin-right:2px}
+.f button small{opacity:.6;margin-left:4px}
+.stat{color:var(--muted);font-size:12px;margin-left:auto}
+main{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding:18px 20px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
+.c.off{opacity:.5}
+.pv{aspect-ratio:16/10;background:#0a0c10;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pv img,.pv video{width:100%;height:100%;object-fit:cover;display:block}
+.pv .ph{color:#3a4050;font-size:22px;font-weight:700;letter-spacing:.5px;text-align:center;padding:12px}
+.src{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11px;padding:2px 7px;border-radius:999px}
+.b{padding:11px 13px;display:flex;flex-direction:column;gap:7px;flex:1}
+.t{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.t b{font-size:15px}.t small{color:var(--muted);white-space:nowrap}
+.d{color:var(--muted);font-size:13px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tags{display:flex;gap:5px;flex-wrap:wrap}.tags span{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:1px 7px;border-radius:999px}
+.tags span.cat{color:var(--acc);border-color:var(--acc)}
+.row{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:4px}
+.row a{color:var(--acc);text-decoration:none;font-size:12px}
+.cp{margin-left:auto;background:var(--acc);color:#081120;border:0;padding:7px 12px;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px}
+.cp.done{background:var(--ok)}.cp.go{background:transparent;border:1px solid var(--line);color:var(--fg);text-decoration:none;font-weight:500}
+.lic{font-size:11px;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--muted)}
+.lic.mit{color:var(--ok);border-color:var(--ok)}.lic.no{color:var(--bad);border-color:var(--bad)}
+.need{font-size:12px;color:var(--warn);margin-left:auto}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ok);color:#052;padding:10px 16px;border-radius:8px;font-weight:600;opacity:0;transition:.2s;pointer-events:none}
+.toast.show{opacity:1}
+.more{grid-column:1/-1;text-align:center;padding:20px}.more button{background:var(--card);border:1px solid var(--line);color:var(--fg);padding:10px 22px;border-radius:8px;cursor:pointer}
+</style></head><body>
+<header>
+<div class="top"><h1>UI 组件导航 <span style="color:var(--muted);font-weight:400;font-size:13px">3700+ React / Tailwind 动效组件，一页搜全</span></h1>
+<input id="q" placeholder="搜索：名称 / 描述 / 标签 / 作者，例如 hero、marquee、pricing、3d、hover…">
+<span class="stat" id="stat"></span></div>
+<div class="f" id="cats"><span class="lbl">分类</span></div>
+<div class="f"><span class="lbl">来源</span><span id="srcs" style="display:contents"></span>
+<span class="lbl" style="margin-left:14px">筛选</span>
+<button data-k="src">可一键复制</button><button data-k="mit">仅 MIT</button><button data-k="demo">带 demo</button></div>
+</header>
+<main id="m"></main><footer style="padding:28px 20px 40px;color:var(--muted);font-size:12px;line-height:1.8;border-top:1px solid var(--line);margin-top:20px">
+<p>这是一个免费的导航页，不托管任何组件本体。组件版权归各作者所有：<a style="color:var(--acc)" href="https://magicui.design">Magic UI</a> · <a style="color:var(--acc)" href="https://ui.aceternity.com">Aceternity UI</a> · <a style="color:var(--acc)" href="https://www.cult-ui.com">cult-ui</a> · <a style="color:var(--acc)" href="https://kokonutui.com">Kokonut UI</a> · <a style="color:var(--acc)" href="https://motion-primitives.com">motion-primitives</a> · 以及 <a style="color:var(--acc)" href="https://21st.dev">21st.dev</a> 社区的各位作者。</p>
+<p>「复制提示词」只对 MIT / Apache 等宽松许可的组件开放，提示词内含原作者署名与许可证；其余组件请点「去原地址获取」到作者页面按其条款使用。预览图来自各原站。若你是作者且不希望作品出现在此，联系即删。</p>
+</footer>
+<div class="toast" id="toast">已复制提示词，去 AI 编辑器里粘贴即可</div>
+<script src="data/index.js"></script>
+<script>
+const DATA=window.INDEX||[];let cat='all',src='all',q='',onlySrc=false,onlyMit=false,onlyDemo=false,shown=120;
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const CATS=[...new Set(DATA.map(c=>c.category_label))];
+const SRCS=[...new Set(DATA.filter(c=>c.source_kind==='library').map(c=>c.source))];
+const catsEl=document.getElementById('cats');
+[['all','全部'],...CATS.map(c=>[c,c])].forEach(([k,l])=>{const b=document.createElement('button');b.dataset.cat=k;b.className=k==='all'?'on':'';const n=k==='all'?DATA.length:DATA.filter(c=>c.category_label===k).length;b.innerHTML=esc(l)+`<small>${n}</small>`;b.onclick=()=>{cat=k;shown=120;render()};catsEl.appendChild(b)});
+const srcsEl=document.getElementById('srcs');
+[['all','全部'],...SRCS.map(s=>[s,s]),['21st','21st.dev 社区']].forEach(([k,l])=>{const b=document.createElement('button');b.dataset.src=k;b.className=k==='all'?'on':'';b.textContent=l;b.onclick=()=>{src=k;shown=120;render()};srcsEl.appendChild(b)});
+function filt(){const kw=q.trim().toLowerCase();return DATA.filter(c=>{
+ if(cat!=='all'&&c.category_label!==cat)return false;
+ if(src!=='all'){if(src==='21st'){if(c.source_kind!=='21st')return false}else if(c.source!==src)return false}
+ if(onlySrc&&!c.copy)return false;if(onlyMit&&c.license!=='MIT')return false;if(onlyDemo&&!c.has_demo)return false;
+ if(!kw)return true;return [c.title,c.name,c.description,c.source,...(c.tags||[])].join(' ').toLowerCase().includes(kw)})}
+function card(c){const lic=c.license==='MIT'?'mit':c.license==='no-license'?'no':'';
+ const pv=c.video?`<video src="${esc(c.video)}" poster="${esc(c.preview||'')}" muted loop playsinline preload="none" onmouseenter="this.play()" onmouseleave="this.pause()"></video>`:c.preview?`<img loading="lazy" src="${esc(c.preview)}" alt="" onerror="this.outerHTML='<div class=ph>${esc(c.title)}</div>'">`:`<div class="ph">${esc(c.title)}</div>`;
+ return `<div class="c"><div class="pv">${pv}<span class="src">${esc(c.source)}</span></div>
+ <div class="b"><div class="t"><b>${esc(c.title)}</b><small>${c.downloads?'↓'+c.downloads:''}</small></div>
+ <div class="d">${esc(c.description)}</div>
+ <div class="tags"><span class="cat">${esc(c.category_label)}</span>${(c.tags||[]).slice(0,5).map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+ <div class="row"><span class="lic ${lic}">${esc(c.license||'未标注')}</span><a href="${esc(c.url)}" target="_blank">文档/效果 ↗</a>${c.mirror_21st?`<a href="${esc(c.mirror_21st)}" target="_blank">21st ↗</a>`:''}
+ ${c.copy?`<button class="cp" data-key="${esc(c.key)}">复制提示词</button>`:`<a class="cp go" href="${esc(c.author_url)}" target="_blank" rel="noopener">去原地址获取 ↗</a>`}</div></div></div>`}
+function render(){const list=filt();document.getElementById('stat').textContent=`${list.length} 个 · 共 ${DATA.length}，可一键复制 ${DATA.filter(c=>c.copy).length}`;
+ const m=document.getElementById('m');m.innerHTML=list.slice(0,shown).map(card).join('')+(list.length>shown?`<div class="more"><button id="more">还有 ${list.length-shown} 个，继续加载</button></div>`:'');
+ document.querySelectorAll('#cats button').forEach(b=>b.classList.toggle('on',b.dataset.cat===cat));
+ document.querySelectorAll('#srcs button').forEach(b=>b.classList.toggle('on',b.dataset.src===src));
+ const mo=document.getElementById('more');if(mo)mo.onclick=()=>{shown+=120;render()}}
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value;shown=120;render()});
+document.querySelectorAll('.f button[data-k]').forEach(b=>b.onclick=()=>{b.classList.toggle('on');if(b.dataset.k==='src')onlySrc=b.classList.contains('on');if(b.dataset.k==='mit')onlyMit=b.classList.contains('on');if(b.dataset.k==='demo')onlyDemo=b.classList.contains('on');shown=120;render()});
+let promptsLoaded=false;function loadPrompts(){return new Promise(res=>{if(promptsLoaded)return res();const s=document.createElement('script');s.src='data/prompts.js';s.onload=()=>{promptsLoaded=true;res()};document.body.appendChild(s)})}
+document.getElementById('m').addEventListener('click',async e=>{const b=e.target.closest('.cp');if(!b)return;b.textContent='读取中…';await loadPrompts();const p=(window.PROMPTS||{})[b.dataset.key]||'';
+ try{await navigator.clipboard.writeText(p)}catch{const ta=document.createElement('textarea');ta.value=p;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove()}
+ b.textContent='已复制 ✓';b.classList.add('done');setTimeout(()=>{b.textContent='复制提示词';b.classList.remove('done')},1500);
+ const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)});
+render();
+</script></body></html>
