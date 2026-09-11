@@ -1,0 +1,398 @@
+<!-- text-effect · motion-primitives · https://motion-primitives.com/docs/text-effect
+     license: MIT · category: text
+      -->
+
+You are given a task to integrate an existing React component in the codebase
+
+The codebase should support:
+- shadcn project structure
+- Tailwind CSS
+- Typescript
+
+If it doesn't, provide instructions on how to setup project via shadcn CLI, install Tailwind or Typescript.
+
+Determine the default path for components and styles.
+If default path for components is not /components/ui, provide instructions on why it's important to create this folder
+Copy-paste this component to /components/ui folder:
+```tsx
+components/ui/text-effect.tsx
+'use client';
+import { cn } from '@/lib/utils';
+import {
+  AnimatePresence,
+  motion
+} from 'motion/react';
+import type {
+  TargetAndTransition,
+  Transition,
+  Variant,
+  Variants,
+} from 'motion/react'
+import React from 'react';
+
+export type PresetType = 'blur' | 'fade-in-blur' | 'scale' | 'fade' | 'slide';
+
+export type PerType = 'word' | 'char' | 'line';
+
+export type TextEffectProps = {
+  children: string;
+  per?: PerType;
+  as?: keyof React.JSX.IntrinsicElements;
+  variants?: {
+    container?: Variants;
+    item?: Variants;
+  };
+  className?: string;
+  preset?: PresetType;
+  delay?: number;
+  speedReveal?: number;
+  speedSegment?: number;
+  trigger?: boolean;
+  onAnimationComplete?: () => void;
+  onAnimationStart?: () => void;
+  segmentWrapperClassName?: string;
+  containerTransition?: Transition;
+  segmentTransition?: Transition;
+  style?: React.CSSProperties;
+};
+
+const defaultStaggerTimes: Record<PerType, number> = {
+  char: 0.03,
+  word: 0.05,
+  line: 0.1,
+};
+
+const defaultContainerVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+  exit: {
+    transition: { staggerChildren: 0.05, staggerDirection: -1 },
+  },
+};
+
+const defaultItemVariants: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+  },
+  exit: { opacity: 0 },
+};
+
+const presetVariants: Record<
+  PresetType,
+  { container: Variants; item: Variants }
+> = {
+  blur: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, filter: 'blur(12px)' },
+      visible: { opacity: 1, filter: 'blur(0px)' },
+      exit: { opacity: 0, filter: 'blur(12px)' },
+    },
+  },
+  'fade-in-blur': {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, y: 20, filter: 'blur(12px)' },
+      visible: { opacity: 1, y: 0, filter: 'blur(0px)' },
+      exit: { opacity: 0, y: 20, filter: 'blur(12px)' },
+    },
+  },
+  scale: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, scale: 0 },
+      visible: { opacity: 1, scale: 1 },
+      exit: { opacity: 0, scale: 0 },
+    },
+  },
+  fade: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0 },
+      visible: { opacity: 1 },
+      exit: { opacity: 0 },
+    },
+  },
+  slide: {
+    container: defaultContainerVariants,
+    item: {
+      hidden: { opacity: 0, y: 20 },
+      visible: { opacity: 1, y: 0 },
+      exit: { opacity: 0, y: 20 },
+    },
+  },
+};
+
+const AnimationComponent: React.FC<{
+  segment: string;
+  variants: Variants;
+  per: 'line' | 'word' | 'char';
+  segmentWrapperClassName?: string;
+}> = React.memo(({ segment, variants, per, segmentWrapperClassName }) => {
+  const content =
+    per === 'line' ? (
+      <motion.span variants={variants} className='block'>
+        {segment}
+      </motion.span>
+    ) : per === 'word' ? (
+      <motion.span
+        aria-hidden='true'
+        variants={variants}
+        className='inline-block whitespace-pre'
+      >
+        {segment}
+      </motion.span>
+    ) : (
+      <motion.span className='inline-block whitespace-pre'>
+        {segment.split('').map((char, charIndex) => (
+          <motion.span
+            key={`char-${charIndex}`}
+            aria-hidden='true'
+            variants={variants}
+            className='inline-block whitespace-pre'
+          >
+            {char}
+          </motion.span>
+        ))}
+      </motion.span>
+    );
+
+  if (!segmentWrapperClassName) {
+    return content;
+  }
+
+  const defaultWrapperClassName = per === 'line' ? 'block' : 'inline-block';
+
+  return (
+    <span className={cn(defaultWrapperClassName, segmentWrapperClassName)}>
+      {content}
+    </span>
+  );
+});
+
+AnimationComponent.displayName = 'AnimationComponent';
+
+const splitText = (text: string, per: PerType) => {
+  if (per === 'line') return text.split('\n');
+  return text.split(/(\s+)/);
+};
+
+const hasTransition = (
+  variant?: Variant
+): variant is TargetAndTransition & { transition?: Transition } => {
+  if (!variant) return false;
+  return (
+    typeof variant === 'object' && 'transition' in variant
+  );
+};
+
+const createVariantsWithTransition = (
+  baseVariants: Variants,
+  transition?: Transition & { exit?: Transition }
+): Variants => {
+  if (!transition) return baseVariants;
+
+  const { exit: _, ...mainTransition } = transition;
+
+  return {
+    ...baseVariants,
+    visible: {
+      ...baseVariants.visible,
+      transition: {
+        ...(hasTransition(baseVariants.visible)
+          ? baseVariants.visible.transition
+          : {}),
+        ...mainTransition,
+      },
+    },
+    exit: {
+      ...baseVariants.exit,
+      transition: {
+        ...(hasTransition(baseVariants.exit)
+          ? baseVariants.exit.transition
+          : {}),
+        ...mainTransition,
+        staggerDirection: -1,
+      },
+    },
+  };
+};
+
+export function TextEffect({
+  children,
+  per = 'word',
+  as = 'p',
+  variants,
+  className,
+  preset = 'fade',
+  delay = 0,
+  speedReveal = 1,
+  speedSegment = 1,
+  trigger = true,
+  onAnimationComplete,
+  onAnimationStart,
+  segmentWrapperClassName,
+  containerTransition,
+  segmentTransition,
+  style,
+}: TextEffectProps) {
+  const segments = splitText(children, per);
+  const MotionTag = motion[as as keyof typeof motion] as typeof motion.div;
+
+  const baseVariants = preset
+    ? presetVariants[preset]
+    : { container: defaultContainerVariants, item: defaultItemVariants };
+
+  const stagger = defaultStaggerTimes[per] / speedReveal;
+
+  const baseDuration = 0.3 / speedSegment;
+
+  const customStagger = hasTransition(variants?.container?.visible ?? {})
+    ? (variants?.container?.visible as TargetAndTransition).transition
+        ?.staggerChildren
+    : undefined;
+
+  const customDelay = hasTransition(variants?.container?.visible ?? {})
+    ? (variants?.container?.visible as TargetAndTransition).transition
+        ?.delayChildren
+    : undefined;
+
+  const computedVariants = {
+    container: createVariantsWithTransition(
+      variants?.container || baseVariants.container,
+      {
+        staggerChildren: customStagger ?? stagger,
+        delayChildren: customDelay ?? delay,
+        ...containerTransition,
+        exit: {
+          staggerChildren: customStagger ?? stagger,
+          staggerDirection: -1,
+        },
+      }
+    ),
+    item: createVariantsWithTransition(variants?.item || baseVariants.item, {
+      duration: baseDuration,
+      ...segmentTransition,
+    }),
+  };
+
+  return (
+    <AnimatePresence mode='popLayout'>
+      {trigger && (
+        <MotionTag
+          initial='hidden'
+          animate='visible'
+          exit='exit'
+          variants={computedVariants.container}
+          className={className}
+          onAnimationComplete={onAnimationComplete}
+          onAnimationStart={onAnimationStart}
+          style={style}
+        >
+          {per !== 'line' ? <span className='sr-only'>{children}</span> : null}
+          {segments.map((segment, index) => (
+            <AnimationComponent
+              key={`${per}-${index}-${segment}`}
+              segment={segment}
+              variants={computedVariants.item}
+              per={per}
+              segmentWrapperClassName={segmentWrapperClassName}
+            />
+          ))}
+        </MotionTag>
+      )}
+    </AnimatePresence>
+  );
+}
+
+demo.tsx
+'use client';
+import { useState, useEffect } from 'react';
+import { TextEffect } from '@/components/core/text-effect';
+
+export function TextEffectWithExit() {
+  const [trigger, setTrigger] = useState(true);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTrigger((prev) => !prev);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+  const blurSlideVariants = {
+    container: {
+      hidden: { opacity: 0 },
+      visible: {
+        opacity: 1,
+        transition: { staggerChildren: 0.01 },
+      },
+      exit: {
+        transition: { staggerChildren: 0.01, staggerDirection: 1 },
+      },
+    },
+    item: {
+      hidden: {
+        opacity: 0,
+        filter: 'blur(10px) brightness(0%)',
+        y: 0,
+      },
+      visible: {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px) brightness(100%)',
+        transition: {
+          duration: 0.4,
+        },
+      },
+      exit: {
+        opacity: 0,
+        y: -30,
+        filter: 'blur(10px) brightness(0%)',
+        transition: {
+          duration: 0.4,
+        },
+      },
+    },
+  };
+
+  return (
+    <TextEffect
+      className='inline-flex'
+      per='char'
+      variants={blurSlideVariants}
+      trigger={trigger}
+    >
+      Animate your ideas with motion-primitives
+    </TextEffect>
+  );
+}
+```
+
+Install NPM dependencies:
+```bash
+npm install motion
+```
+
+Implementation Guidelines
+ 1. Analyze the component structure and identify all required dependencies
+ 2. Review the component's argumens and state
+ 3. Identify any required context providers or hooks and install them
+ 4. Questions to Ask
+ - What data/props will be passed to this component?
+ - Are there any specific state management requirements?
+ - Are there any required assets (images, icons, etc.)?
+ - What is the expected responsive behavior?
+ - What is the best place to use this component in the app?
+
+Steps to integrate
+ 0. Copy paste all the code above in the correct directories
+ 1. Install external dependencies
+ 2. Fill image assets with Unsplash stock images you know exist
+ 3. Use lucide-react icons for svgs or logos if component requires them
